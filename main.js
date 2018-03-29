@@ -69,7 +69,7 @@ module.exports = (course, stepCallback) => {
     function createBackupCourse() {
         
         var courseObj = {
-            'course[name]': `${course.info.courseName} ${course.info.courseCode} Backup`,
+            'course[name]': `${course.info.courseCode} Backup`,
             'course[code]': course.info.courseCode
         };
 
