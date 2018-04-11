@@ -67,27 +67,29 @@ module.exports = (course, stepCallback) => {
     }
 
     function createBackupCourse() {
-        
+
         var courseObj = {
             'course[name]': `${course.info.courseCode} Backup`,
             'course[code]': course.info.courseCode
         };
 
-        // WARNING where is the account ID stored?
-        canvas.post('/api/v1/accounts/19/courses', courseObj, (createErr, newCourse) => {
+        canvas.post(`/api/v1/accounts/${course.settings.accountID}/courses`, courseObj, (createErr, newCourse) => {
             if (createErr) {
                 course.fatalError(createErr);
                 stepCallback(createErr, course);
                 return;
             }
-            
+
             course.message(`Backup course created with id: ${newCourse.id}`);
             course.newInfo('prototypeOU', newCourse.id);
-            
+
             associateCourse();
         });
     }
-
-    createBackupCourse();
-    // associateCourse();
+    if (course.settings.platform === 'campus') {
+        course.message('NOT creating a backup course');
+        stepCallback(null, course);
+    } else {
+        createBackupCourse();
+    }
 };
