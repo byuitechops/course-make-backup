@@ -1,6 +1,8 @@
-/* Module Description */
-
-/* Put dependencies here */
+/********************************************
+ * Creates a new canvas course which is then 
+ * linked to the newly converted course and
+ * synced via the canvas blueprint feature 
+ ********************************************/
 
 const canvas = require('canvas-wrapper');
 
@@ -32,7 +34,6 @@ module.exports = (course, stepCallback) => {
         check();
     }
 
-
     function syncCourse() {
         var postObj = {
             'copy_settings': true
@@ -48,7 +49,6 @@ module.exports = (course, stepCallback) => {
             checkMigration(bpMigration);
         });
     }
-
 
     function associateCourse() {
         var putObj = {
@@ -67,7 +67,6 @@ module.exports = (course, stepCallback) => {
     }
 
     function createBackupCourse() {
-
         var courseObj = {
             'course[name]': `${course.info.courseCode} Backup`,
             'course[code]': course.info.courseCode
@@ -86,10 +85,12 @@ module.exports = (course, stepCallback) => {
             associateCourse();
         });
     }
-    if (course.settings.platform === 'campus') {
-        course.message('NOT creating a backup course');
+
+    var validPlatforms = ['online', 'pathway'];
+    if (validPlatforms.includes(course.settings.platform)) {
+        course.message('Invalid platform. Skipping child module');
         stepCallback(null, course);
-    } else {
-        createBackupCourse();
+        return;
     }
+    createBackupCourse();
 };
