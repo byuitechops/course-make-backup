@@ -27,8 +27,7 @@ module.exports = (course, stepCallback) => {
                         check();
                     }, 1000 * 20);
                 } else {
-                    // TODO add a course.log!
-                    // course.log('Backup course created', {'Course OU': })
+                    course.log('Backup course created', {'Course OU': course.info.prototypeOU});
                     stepCallback(null, course);
                 }
             });
@@ -54,10 +53,10 @@ module.exports = (course, stepCallback) => {
 
     function associateCourse() {
         var putObj = {
-            'course_ids_to_add': course.info.prototypeOU
+            'course_ids_to_add': [course.info.prototypeOU]
         };
 
-        canvas.put(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/update_associations`, putObj, (err) => {
+        canvas.putJSON(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/update_associations`, putObj, (err) => {
             if (err) {
                 course.error(err);
                 stepCallback(err, course);
@@ -70,8 +69,8 @@ module.exports = (course, stepCallback) => {
 
     function createBackupCourse() {
         var courseObj = {
-            'course[name]': `${course.info.courseCode} Backup`,
-            'course[code]': course.info.courseCode
+            'course[name]': `${course.info.courseCode} Course Backup`,
+            'course[code]': `${course.info.courseCode} CB`
         };
 
         canvas.post(`/api/v1/accounts/${course.settings.accountID}/courses`, courseObj, (createErr, newCourse) => {
