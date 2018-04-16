@@ -96,6 +96,7 @@ module.exports = (course, stepCallback) => {
         course.message('Invalid platform. Skipping child module');
     } else {
         createBackupCourse();
+        return;
     }
 
     stepCallback(null, course);
