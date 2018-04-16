@@ -11,7 +11,7 @@ module.exports = (course, stepCallback) => {
         function check() {
             canvas.get(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/migrations/${migration.id}`, (getErr, migrationDets) => {
                 if (getErr) {
-                    course.fatalError(getErr);
+                    course.error(getErr);
                     stepCallback(getErr, course);
                     return;
                 }
@@ -20,13 +20,15 @@ module.exports = (course, stepCallback) => {
 
                 if (migrationDets[0].workflow_state === 'exports_failed' || migrationDets[0].workflow_state === 'imports_failed') {
                     var syncErr = new Error('Course sync failed');
-                    course.fatalError(syncErr);
+                    course.error(syncErr);
                     stepCallback(syncErr, course);
                 } else if (migrationDets[0].workflow_state != 'completed') {
                     setTimeout(() => {
                         check();
                     }, 1000 * 20);
                 } else {
+                    // TODO add a course.log!
+                    // course.log('Backup course created', {'Course OU': })
                     stepCallback(null, course);
                 }
             });
@@ -41,7 +43,7 @@ module.exports = (course, stepCallback) => {
 
         canvas.post(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/migrations`, postObj, (err, bpMigration) => {
             if (err) {
-                course.fatalError(err);
+                course.error(err);
                 stepCallback(err, course);
                 return;
             }
@@ -57,7 +59,7 @@ module.exports = (course, stepCallback) => {
 
         canvas.put(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/update_associations`, putObj, (err) => {
             if (err) {
-                course.fatalError(err);
+                course.error(err);
                 stepCallback(err, course);
                 return;
             }
@@ -74,7 +76,7 @@ module.exports = (course, stepCallback) => {
 
         canvas.post(`/api/v1/accounts/${course.settings.accountID}/courses`, courseObj, (createErr, newCourse) => {
             if (createErr) {
-                course.fatalError(createErr);
+                course.error(createErr);
                 stepCallback(createErr, course);
                 return;
             }
@@ -88,9 +90,14 @@ module.exports = (course, stepCallback) => {
 
     var validPlatforms = ['online', 'pathway'];
     if (!validPlatforms.includes(course.settings.platform)) {
+        /* quit if the platrom is invalid */
         course.message('Invalid platform. Skipping child module');
-        stepCallback(null, course);
-        return;
+    } else if (!course.info.isBlueprint) {
+        /* quit if the course isn't a BP course */
+        course.message('Invalid platform. Skipping child module');
+    } else {
+        createBackupCourse();
     }
-    createBackupCourse();
+
+    stepCallback(null, course);
 };
