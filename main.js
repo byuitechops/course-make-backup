@@ -12,7 +12,7 @@ module.exports = (course, stepCallback) => {
             canvas.get(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/migrations/${migration.id}`, (getErr, migrationDets) => {
                 if (getErr) {
                     course.error(getErr);
-                    stepCallback(getErr, course);
+                    stepCallback(null, course);
                     return;
                 }
 
@@ -21,7 +21,7 @@ module.exports = (course, stepCallback) => {
                 if (migrationDets[0].workflow_state === 'exports_failed' || migrationDets[0].workflow_state === 'imports_failed') {
                     var syncErr = new Error('Course sync failed');
                     course.error(syncErr);
-                    stepCallback(syncErr, course);
+                    stepCallback(null, course);
                 } else if (migrationDets[0].workflow_state != 'completed') {
                     setTimeout(() => {
                         check();
@@ -43,7 +43,7 @@ module.exports = (course, stepCallback) => {
         canvas.post(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/migrations`, postObj, (err, bpMigration) => {
             if (err) {
                 course.error(err);
-                stepCallback(err, course);
+                stepCallback(null, course);
                 return;
             }
             course.message('Starting to sync blueprint course');
@@ -59,7 +59,7 @@ module.exports = (course, stepCallback) => {
         canvas.putJSON(`/api/v1/courses/${course.info.canvasOU}/blueprint_templates/default/update_associations`, putObj, (err) => {
             if (err) {
                 course.error(err);
-                stepCallback(err, course);
+                stepCallback(null, course);
                 return;
             }
             course.message('Backup course associated with blueprint course');
@@ -76,7 +76,7 @@ module.exports = (course, stepCallback) => {
         canvas.post(`/api/v1/accounts/${course.settings.accountID}/courses`, courseObj, (createErr, newCourse) => {
             if (createErr) {
                 course.error(createErr);
-                stepCallback(createErr, course);
+                stepCallback(null, course);
                 return;
             }
 
