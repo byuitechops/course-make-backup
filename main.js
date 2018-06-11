@@ -146,20 +146,15 @@ module.exports = (course, stepCallback) => {
             course.message(`Backup course created with id: ${newCourse.id}`);
             // course.newInfo('prototypeOU', newCourse.id);
             course.newInfo('backupOU', newCourse.id);
-            
+
             associateCourse();
         });
     }
 
     /*****************************************************************
      * START HERE 
-     * Ensure course is a BP course & platform is valid before running
      *****************************************************************/
-    var validPlatforms = ['online', 'pathway'];
-    if (!validPlatforms.includes(course.settings.platform)) {
-        /* quit if the platrom is invalid */
-        course.message('Invalid platform. Skipping child module');
-    } else if (!course.info.isBlueprint) {
+    if (!course.info.isBlueprint) {
         /* quit if the course isn't a BP course */
         course.message('Course is not a Blueprint course. Skipping child module');
     } else {
