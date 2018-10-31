@@ -132,6 +132,7 @@ module.exports = (course, stepCallback) => {
      ********************************/
     function createBackupCourse() {
         var courseObj = {
+            'course[account_id]': `${course.settings.accountID}`,
             'course[name]': `${course.info.courseCode} Course Backup`,
             'course[code]': `${course.info.courseCode} CB`
         };
